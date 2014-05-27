@@ -1,43 +1,24 @@
-CakePHP
+VNPTEPAY CHARGING CRM
 =======
+This project is made with CakePHP as a CRM - Customer Relation Management  using MySQL database. It contains all basic tasks of backend websites: Search forms, fetching data from DBs, Processing user actions, loging-in, role and permissions ... with minimun investigation in website UI and effects. 
+I build it with the focus on its functions and requirements from requested department. 
 
-[![CakePHP](http://cakephp.org/img/cake-logo.png)](http://www.cakephp.org)
+What you can learn (for new ones in CakePHP)
+--------------------------------------------
 
-CakePHP is a rapid development framework for PHP which uses commonly known design patterns like Active Record, Association Data Mapping, Front Controller and MVC.
-Our primary goal is to provide a structured framework that enables PHP users at all levels to rapidly develop robust web applications, without any loss to flexibility.
+- Custom permissions for users with different roles
 
-Some Handy Links
-----------------
+- Handle POST and GET requests from View to Controller
 
-[CakePHP](http://www.cakephp.org) - The rapid development PHP framework
+- Using Models with Relationships and linking betweens models
 
-[CookBook](http://book.cakephp.org) - THE CakePHP user documentation; start learning here!
+- Dynamic load other models in controllers (for a dropdown list of partners in example)
 
-[API](http://api.cakephp.org) - A reference to CakePHP's classes
-
-[Plugins](http://plugins.cakephp.org/) - A repository of extensions to the framework
-
-[The Bakery](http://bakery.cakephp.org) - Tips, tutorials and articles
-
-[Community Center](http://community.cakephp.org) - A source for everything community related
-
-[Training](http://training.cakephp.org) - Join a live session and get skilled with the framework
-
-[CakeFest](http://cakefest.org) - Don't miss our annual CakePHP conference
-
-[Cake Software Foundation](http://cakefoundation.org) - Promoting development related to CakePHP
+- Processing Forms in Views
 
 Get Support!
 ------------
 
-[#cakephp](http://webchat.freenode.net/?channels=#cakephp) on irc.freenode.net - Come chat with us, we have cake
-
-[Google Group](https://groups.google.com/group/cake-php) - Community mailing list and forum
-
-[GitHub Issues](https://github.com/cakephp/cakephp/issues) - Got issues? Please tell us!
-
-[Roadmaps](https://github.com/cakephp/cakephp/wiki#roadmaps) - Want to contribute? Get involved!
-
 [![Bake Status](https://secure.travis-ci.org/cakephp/cakephp.png?branch=master)](http://travis-ci.org/cakephp/cakephp)
 
-![Cake Power](https://raw.github.com/cakephp/cakephp/master/lib/Cake/Console/Templates/skel/webroot/img/cake.power.gif)
+![Tran Duc Loi](https://github.com/loitd/vnptepaycrm-cakephp/blob/master/app/webroot/img/cake.power.gif)
