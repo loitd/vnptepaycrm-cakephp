@@ -21,4 +21,4 @@ Get Support!
 
 [![Bake Status](https://secure.travis-ci.org/cakephp/cakephp.png?branch=master)](http://travis-ci.org/cakephp/cakephp)
 
-![Tran Duc Loi](https://github.com/loitd/vnptepaycrm-cakephp/blob/master/app/webroot/img/cake.power.gif)
+![Tran Duc Loi](https://raw.githubusercontent.com/loitd/vnptepaycrm-cakephp/master/app/webroot/img/cake.power.gif)
