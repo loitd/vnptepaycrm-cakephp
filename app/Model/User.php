@@ -24,7 +24,7 @@ class User extends AppModel{
                 'message' 	=> 'A username is required'
             ), 
             'checklen'  => array(
-                'rule'      => array('between', 5, 15),
+                'rule'      => array('between', 4, 15),
                 'message'   => 'Username must be 5 to 15 characters'
             ),
             'unique'    => array(

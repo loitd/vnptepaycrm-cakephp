@@ -3,7 +3,7 @@ class DiscountsController extends AppController{
 
 	// authorization overwritten
 	public function isAuthorized($user){
-		if(isset($user['role']) && $user['role'] === "kinhdoanh") return true;
+		if(isset($user['role'])) return true;
 	}
 
 	public function index(){

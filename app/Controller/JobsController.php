@@ -14,7 +14,7 @@ class JobsController extends AppController{
 	public function index(){
 		//get curent status
 		$urole 		= $this->Session->read('Auth.User.role');
-		$ustatus 	= ($urole == "kinhdoanh") ? 0 : ($urole == "khaithac" ? 1 : ($urole == "ketoan" ? 2 : 99));
+		$ustatus 	= ($urole == "khaithac") ? 0 : ($urole == "kinhdoanh" ? 1 : ($urole == "ketoan" ? 2 : 99));
 
 		// if users pressed search button
 		if($this->request->is('get') && isset($this->request->query['from_date'])){
@@ -111,7 +111,7 @@ class JobsController extends AppController{
 	        	$cstatus = (int) $this->Job->field('status', array('id'=>$id));
 	        	$newstatus = $this->Session->read('Auth.User.id');
 	        	
-	        	if($urole == 'khaithac' && $cstatus ==1)
+	        	if($urole == 'khaithac' && $cstatus ==0)
 				{
 					if($this->Job->saveField('tinhcuoc_id', $newstatus)){
 
@@ -157,8 +157,9 @@ class JobsController extends AppController{
         }
 
         // check permissions
-		if(($urole == 'kinhdoanh' && $cstatus ==0) || ($urole == 'khaithac' && $cstatus ==1) || ($urole == 'ketoan' && $cstatus ==2) )
+		if(($urole == 'kinhdoanh' && $cstatus ==1) || ($urole == 'khaithac' && $cstatus ==0) || ($urole == 'ketoan' && $cstatus ==2) )
 		{
+			// save all the fields
 			// do enable
 			if($this->Job->saveField('status', $newstatus)){
 				$this->Session->setFlash(__('Job has been forwarded.'));

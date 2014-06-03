@@ -19,6 +19,11 @@ What you can learn (for new ones in CakePHP)
 Get Support!
 ------------
 
-[![Bake Status](https://secure.travis-ci.org/cakephp/cakephp.png?branch=master)](http://travis-ci.org/cakephp/cakephp)
+git add filename (for seconds)
+
+git commit -m 'message'
+
+git push origin master
+
 
 ![Tran Duc Loi](https://raw.githubusercontent.com/loitd/vnptepaycrm-cakephp/master/app/webroot/img/cake.power.gif)

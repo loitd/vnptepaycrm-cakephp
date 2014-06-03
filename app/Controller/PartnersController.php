@@ -8,14 +8,27 @@ class PartnersController extends AppController{
 		// var_dump($this->action);
 
 		// allow index action to all sale users
-		if (in_array($this->action, array('index', 'add'))) {
-			if(isset($user['role']) && $user['role'] === "kinhdoanh") return true;
+		if (in_array($this->action, array('index'))) {
+			if (isset($user['role'])) return true;
+		}
+
+		if (in_array($this->action, array('add'))) {
+			if (isset($user['role']) && in_array($user['role'], array("kinhdoanh"))) return true;
+		}
+
+		if(in_array($this->action, array('edit'))){
+			$partnerID = (int) $this->request->params['pass'][0];
+			if ($this->Partner->isThisSale($partnerID, $user['id']) 
+				|| in_array($user['username'], array("hant")) 
+				|| in_array($user['role'], array("khaithac", "ketoan"))) {
+            	return true;
+        	}
 		}
 		
-		// only allow edit and delete his partner 
+		// only allow edit and delete his partner. He must be a saleman
 		if(in_array($this->action, array('edit', 'delete', 'enable', 'disable'))){
 			$partnerID = (int) $this->request->params['pass'][0];
-			if ($this->Partner->isThisSale($partnerID, $user['id'])) {
+			if ($this->Partner->isThisSale($partnerID, $user['id']) && in_array($user['role'], array("kinhdoanh")) ) {
             	return true;
         	}
 		}
@@ -25,10 +38,26 @@ class PartnersController extends AppController{
 		// return false;
 	}
 
+	/*
+		Kinhdoanh will see his partners
+		hant will see all partners
+		khaithac & ketoan will see all partners
+	*/
 	public function index(){
+		// get current loged in user
+		$urole 		= $this->Session->read('Auth.User.role');
+		$uname 		= $this->Session->read('Auth.User.username');
+
+		// change the conditions based on user role
+		if($urole == "kinhdoanh" && $uname != "hant"){
+			$conditions = array('saleman_id'=>$this->Auth->user('id'));
+		} else {
+			$conditions = array();
+		}
+
 		// paginate the data
 		$this->paginate = array(
-			'conditions'	=> array('saleman_id'=>$this->Auth->user('id')),
+			'conditions'	=> $conditions,
 			'joins'			=> array(), // no need to join because we have the belongsto relationship
             'limit' 		=> 6,
             'order' 		=> array('Partner.partner_code' => 'asc' ),
@@ -68,6 +97,12 @@ class PartnersController extends AppController{
 		}
 	}
 
+
+	/*
+		Kinhdoanh will edit his partners
+		hant will edit all partners
+		khaithac & ketoan will only view all partners but will unable to edit & save
+	*/
 	public function edit($id=null){
 		$this->loadModel('Template');
 		$templatedds = $this->Template->find('list', array('fields'=>array('Template.template_name')));
@@ -95,8 +130,10 @@ class PartnersController extends AppController{
 
 	    /* Next the action checks whether the request is either a POST or a PUT request. 
 		If it is, then we use the POST data to update our Post record, or kick back and show the user validation errors. */
+		// get current loged in user
+		$urole 		= $this->Session->read('Auth.User.role');
 
-	    if ($this->request->is(array('post', 'put'))) {
+	    if ($this->request->is(array('post', 'put')) && !in_array($urole, array("khaithac", "ketoan")) ) {
 	        $this->Partner->id = $id;
 	        if ($this->Partner->save($this->request->data)) {
 	            $this->Session->setFlash(__('Your partner has been updated.'));

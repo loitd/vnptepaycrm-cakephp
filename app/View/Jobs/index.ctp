@@ -47,8 +47,8 @@
                 <td style="text-align: center;">
                     <?php 
                         $x = $job['Job']['status']; 
-                        if($x=='0'){echo "Kinh doanh Process";} 
-                        elseif ($x=='1') { echo "Khai thác Process"; }
+                        if($x=='0'){echo "Khai thác Process";} 
+                        elseif ($x=='1') { echo "Kinh doanh Process"; }
                         elseif ($x=='2') { echo "Kế toán Process"; }
                         elseif ($x=='3') { echo "Đã kết thúc"; }
                         else { echo "Không xác định"; }
