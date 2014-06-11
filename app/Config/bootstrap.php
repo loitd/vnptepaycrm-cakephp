@@ -120,5 +120,7 @@ define('KETOANROLE'			, "ketoan");
 define('EMAILCC', 'loitd@vnptepay.com.vn;tupn@vnptepay.com.vn');
 define('EMAILBCC', 'tupn@vnptepay.com.vn;tupn@vnptepay.com.vn');
 define('MYSEPARATOR', ';');
+define('SMS_CONTENT', "VNPTEPAY xin gui Ma OTP cho lan nhan tien toi cua ban la: %s. 
+	Hay cung cap lai OTP nay khi lam thu tuc nhan tien. Xin cam on.");
 
 

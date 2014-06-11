@@ -142,6 +142,8 @@ class JobsController extends AppController{
 	    }
 
 	    //echo $job['Partner']['emailKD'];
+	    // set update criterias
+	    $this->Job->id = $id; // set job where id = $id
 
 	    /* whatever it is, create an alert record and fill the ID into the alert_id */
 	    if(!isset($job['Job']['alert_id']) || $job['Job']['alert_id'] == 0 ){
@@ -151,17 +153,21 @@ class JobsController extends AppController{
 	    	$newalert['Alert']['email_bcc'] = EMAILBCC;
 
 	    	$this->Alert->create();
-	    	$this->Alert->save($newalert);
-	    	$alert_id = $this->Alert->id;
+	    	if( $this->Alert->save($newalert) ){
+	    		$alert_id = $this->Alert->id;
+	    	} else {
+	    		die('Unable to create new alert');
+	    	}
+	    	
 	    	//echo "NEW ALERT RECORD IS CREATED WITH ID: " . $alert_id;
 	    	
 	    	/* now insert it into job record */
-	    	$this->Job->read(null,1);
-	    	$this->Job->set('alert_id', $alert_id);
-	    	$this->Job->save();
-
-	    	//redirect to refresh
-	    	$this->redirect(array('action' => 'edit', $id));
+	    	//$this->Job->read(null,1);
+	    	if($this->Job->saveField('alert_id', $alert_id)) {
+	    		$this->redirect(array('action' => 'edit', $id)); //redirect to refresh
+	    	} else {
+	    		die('Unable to update the alert_id');
+	    	}
 
 	    }
 	    
@@ -177,7 +183,7 @@ class JobsController extends AppController{
 	    	$email_attach = $this->request->data['Job']['email_attach'];
 	    	
 	        // set update criterias
-	        $this->Job->id = $id; // set job where id = $id
+	        //$this->Job->id = $id; // set job where id = $id
 	        $this->Alert->id = $job['Job']['alert_id']; // set job where id = $id
 
 	        // check if users update the attached files. This procedure will exe only when user update this field.
@@ -301,9 +307,10 @@ class JobsController extends AppController{
 	*/
 	public function forward($id=null)
 	{
+		$this->loadModel('Alert');
+		$this->loadModel('Partner');
 		//get current status
 		$cstatus = (int) $this->Job->field('status', array('id'=>$id));
-		$newstatus = $cstatus + 1; //forward job to another dept
 		$urole = $this->Session->read('Auth.User.role');
 
 		$this->Job->id = $id;
@@ -313,13 +320,44 @@ class JobsController extends AppController{
         }
 
         // check permissions
-		if(($urole == 'kinhdoanh' && $cstatus ==1) || ($urole == 'khaithac' && $cstatus ==0) || ($urole == 'ketoan' && $cstatus ==2) )
+		if( ($urole == KINHDOANHROLE && $cstatus ==KINHDOANH_PROCESS) || 
+			($urole == KHAITHACROLE && $cstatus <=KHT_GUIBANCUNG) || 
+			($urole == KETOANROLE && $cstatus ==KETOAN_PROCESS) )
 		{
 			// save all the fields
+			$newstatus = $cstatus + 1; //forward job to another dept
 			// do enable
 			if($this->Job->saveField('status', $newstatus)){
 
-				//
+				//send otp when kinhdoanh forward viec cho ketoan
+				if($cstatus == KINHDOANH_PROCESS && $newstatus == KETOAN_PROCESS){
+
+					//get the related partner
+					$partner_id = $this->Job->field('partner_id', array('id'=>$id));
+					$this->Partner->id = $partner_id;
+
+					//var_dump( $this->Partner->field('mobileKD') );die();
+
+					//create the otp_alert_id & update
+					$newalert['Alert']['status'] 		= 0;
+			    	$newalert['Alert']['sms_to'] 		= $this->Partner->field('mobileKD');
+			    	$newalert['Alert']['sms_content']	= sprintf( SMS_CONTENT, $this->Job->field('otp') );
+			    	
+
+			    	$this->Alert->create();
+			    	if( $this->Alert->save($newalert) ){
+			    		$otp_alert_id = $this->Alert->id;
+			    	} else {
+			    		die('Unable to create new OTP alert');
+			    	}
+
+			    	//update opt alert id into job table
+					if($this->Job->saveField('otp_alert_id', $otp_alert_id)) {
+
+					} else {
+						die('Unable to save OTP');
+					}
+				}
 
 				
 				$this->Session->setFlash(__('Job has been forwarded.'));

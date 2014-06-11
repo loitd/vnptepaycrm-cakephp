@@ -18,6 +18,7 @@
 			<?php echo $this->Form->hidden('status', array('value'=>'0')) ;?>
 			<?php echo $this->Form->hidden('type', array('value'=>'1')) ;?>
 			<?php echo $this->Form->hidden('otp', array('value'=>generateRandomString())) ;?>
+			<?php echo $this->Form->hidden('alert_id', array('value'=>0)) ;?>
 			
 			<?php echo $this->Form->submit('Add job', array('class'=>'form-submit')) ;?>
 		</fieldset>

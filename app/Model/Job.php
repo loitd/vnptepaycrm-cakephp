@@ -34,6 +34,11 @@ class Job extends AppModel{
 			'foreignKey'	=> 'alert_id', //User.id
 			'fields'		=> array(),
 		),
+		'AlertOTP'		=> array(
+			'className'		=> 'Alert',
+			'foreignKey'	=> 'otp_alert_id', //User.id
+			'fields'		=> array(),
+		),
 	);
 
 	public $validate = array(

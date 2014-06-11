@@ -21,8 +21,12 @@
 			<?php echo $this->Form->input('Tinhcuoc.username', array('readonly'=>'readonly','label'=>'Khai thác')) ;?>
 			<?php echo $this->Form->input('Ketoan.username', array('readonly'=>'readonly','label'=>'Kế toán')) ;?>
 			<?php echo $this->Form->input('otp', array('readonly'=>'readonly','label'=>'OTP')) ;?>
+
 			
 			<?php 
+				
+				echo $this->Form->input('AlertOTP.status', array('disabled'=>'disabled','label'=>'Trạng thái gửi OTP', 'options'=>array('99'=>'Khởi tạo', '0'=>'Chưa gửi', '1'=>'Đã gửi'),)) ;
+
 				if($jobstt <= KHT_GUIBANCUNG && $this->Session->read('Auth.User.role') == 'khaithac' ){
 					echo $this->Form->input('notes2', array('label'=>'Tính cước Notes')) ;
 				
