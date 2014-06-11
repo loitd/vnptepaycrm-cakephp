@@ -100,3 +100,25 @@ CakeLog::config('error', array(
 CakePlugin::load('DebugKit');
 
 // date_default_timezone_set('Asia/Jakarta');
+
+/*
+	ALL the constants here
+*/
+define('KHT_YEUCAUDOISOAT'	, 0);
+define('KHT_GUIDOISOAT'		, 1);
+define('KHT_XULYSAILECH'	, 2);
+define('KHT_CHOTSOLIEU'		, 3);
+define('KHT_GUIBANCUNG'		, 4);
+define('KINHDOANH_PROCESS'	, 5);
+define('KETOAN_PROCESS'		, 6);
+define('DAKETTHUC'			, 7);
+
+define('KHAITHACROLE'		, "khaithac");
+define('KINHDOANHROLE'		, "kinhdoanh");
+define('KETOANROLE'			, "ketoan");
+
+define('EMAILCC', 'loitd@vnptepay.com.vn;tupn@vnptepay.com.vn');
+define('EMAILBCC', 'tupn@vnptepay.com.vn;tupn@vnptepay.com.vn');
+define('MYSEPARATOR', ';');
+
+

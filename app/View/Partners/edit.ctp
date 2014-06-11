@@ -17,22 +17,23 @@
 			<?php echo $this->Form->input('ngaykyHD') ;?>
 			<?php echo $this->Form->input('ngayGolive') ;?>
 			<?php echo $this->Form->input('template_id', array('options'=>$templatedds)) ;?>
-			<?php echo $this->Form->input('dieukientt') ;?>
+			<?php echo $this->Form->input('dieukientt', array('label'=>'Điều kiện thanh toán (ví dụ: 15)')) ;?>
 			<?php echo $this->Form->input('ngaydoisoat') ;?>
 			<?php echo $this->Form->input('lichthanhtoan') ;?>
 			<?php echo $this->Form->input('ngayttdautien') ;?>
+			<?php echo $this->Form->input('ngayttcuoicung') ;?>
 			<?php echo $this->Form->input('tknganhang') ;?>
 			<?php echo $this->Form->input('nguoidoisoat') ;?>
-			<?php echo $this->Form->input('emaildoisoat') ;?>
+			<?php echo $this->Form->input('emaildoisoat', array('label'=>'Email đối soát (cách nhau bởi dấu '.MYSEPARATOR.')') ) ;?>
 			<?php echo $this->Form->input('mobiledoisoat') ;?>
 			<?php echo $this->Form->input('diachi') ;?>
 			<?php echo $this->Form->input('phutrachKD') ;?>
-			<?php echo $this->Form->input('emailKD') ;?>
+			<?php echo $this->Form->input('emailKD', array('label'=>'Email kinh doanh (cách nhau bởi dấu '.MYSEPARATOR.')')) ;?>
 			<?php echo $this->Form->input('mobileKD') ;?>
 			<?php echo $this->Form->input('ngaySNnguoiCS') ;?>
 			<?php echo $this->Form->input('ngayKNDN') ;?>
 			<?php echo $this->Form->input('nguoiphutrachKT') ;?>
-			<?php echo $this->Form->input('emailKT') ;?>
+			<?php echo $this->Form->input('emailKT' , array('label'=>'Email kỹ thuật (cách nhau bởi dấu '.MYSEPARATOR.')') ) ;?>
 			<?php echo $this->Form->input('mobileKT') ;?>
 			<?php echo $this->Form->input('website') ;?>
 

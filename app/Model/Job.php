@@ -12,7 +12,7 @@ class Job extends AppModel{
 			'className'		=> 'Partner', //the class name of the model being associated to the current model
 			'type'			=> 'LEFT', 
 			'foreignKey'	=> 'partner_id', //the name of the foreign key found in the current model (Job.partner_id)
-			'fields'		=> array('partner_code'), // this will pull the username with the ID of partner's saleman from User table. So handful
+			'fields'		=> array('partner_code', 'dieukientt', 'emailKD', 'mobileKD'), // this will pull the username with the ID of partner's saleman from User table. So handful
 		),
 		'Saleman'		=> array(
 			'className'		=> 'User',
@@ -28,6 +28,11 @@ class Job extends AppModel{
 			'className'		=> 'User',
 			'foreignKey'	=> 'ketoan_id', //User.id
 			'fields'		=> array('username'),
+		),
+		'Alert'		=> array(
+			'className'		=> 'Alert',
+			'foreignKey'	=> 'alert_id', //User.id
+			'fields'		=> array(),
 		),
 	);
 

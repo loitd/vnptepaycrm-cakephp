@@ -12,9 +12,10 @@ class JobsController extends AppController{
 	}
 
 	public function index(){
+		//var_dump(KHAITHAC);
 		//get curent status
 		$urole 		= $this->Session->read('Auth.User.role');
-		$ustatus 	= ($urole == "khaithac") ? 0 : ($urole == "kinhdoanh" ? 1 : ($urole == "ketoan" ? 2 : 99));
+		$ustatus 	= ($urole == "khaithac") ? 4 : ($urole == "kinhdoanh" ? 5 : ($urole == "ketoan" ? 6 : 99));
 
 		// if users pressed search button
 		if($this->request->is('get') && isset($this->request->query['from_date'])){
@@ -28,6 +29,8 @@ class JobsController extends AppController{
 			$todate 	= $this->request->query['to_date'];
 			$todate 	= $todate['year'] . "-" . $todate['month'] . "-" . $todate['day'];
 
+			$priority 	= $this->request->query['priority'];
+
 			// get the partner_id list from partner code search
 			$pcode 		= $this->request->query['partner_code'];
 			$pidlist	= $this->Partner->find('list', array(	'conditions'=> array('Partner.partner_code LIKE'=>'%' . $pcode . '%'),
@@ -35,17 +38,49 @@ class JobsController extends AppController{
 															)
 											);
 
-			// var_dump($pidlist);
+			// var_dump($priority);
+			switch ($priority) {
+				case '0': // all = dont check
+					$priority_cond = array();
+					break;
+				case '1':
+					$priority_cond = array('Job.type'=>'1'); //dot xuat
+					break;
+				case '2':
+					$priority_cond = array('Job.type'=>'0'); //dinh ky
+					break;
+				case '3':
+					$priority_cond = array('Partner.dieukientt <'=>30);
+					break;
+				default:
+					$priority_cond = array();
+					break;
+			}
+
 			// change the conditions based on user role
-			if($urole == "kinhdoanh"){
-				$conditions = array(	CakeTime::daysAsSql($fromdate, $todate, 'Job.created'),
-										'Job.partner_id'=>$pidlist,
-									);
-			} else {
-				$conditions = array(	'Job.status'=>$ustatus, 
+
+			if($urole == KHAITHACROLE){
+				//if user is khaithac
+				$conditions = array(	'Job.status <='=>KHT_GUIBANCUNG, 
 										CakeTime::daysAsSql($fromdate, $todate, 'Job.created'),
 										'Job.partner_id'=>$pidlist,
 									);
+				$conditions = array_merge($conditions, $priority_cond);
+			} elseif($urole == KINHDOANHROLE){
+				// if user is kinhdoanh then display all the job of the user
+				$conditions = array(	
+										CakeTime::daysAsSql($fromdate, $todate, 'Job.created'),
+										'Job.partner_id'=>$pidlist,
+									);
+				$conditions = array_merge($conditions, $priority_cond);
+			} else {
+				// else display the job only when it is on the current department
+				$conditions = array(	
+										'Job.status'=>$ustatus, 
+										CakeTime::daysAsSql($fromdate, $todate, 'Job.created'),
+										'Job.partner_id'=>$pidlist,
+									);
+				$conditions = array_merge($conditions, $priority_cond);
 			}
 
 			// paginate the data, fix the conditions to make it filter what users search
@@ -53,15 +88,24 @@ class JobsController extends AppController{
 				'conditions'	=> $conditions,
 				'joins'			=> array(), // no need to join because we have the belongsto relationship
 	            'limit' 		=> 20,
-	            'order' 		=> array('Job.partner_code' => 'asc' ),
+	            'order' 		=> array('Job.modified' => 'desc' ),
 	        );
 
 		} else {
-			// load normal page with all jobs of this saleman and all status
-			if($urole == "kinhdoanh"){
-				$conditions = array();
-			} else {
-				$conditions = array('Job.status'=>$ustatus);
+			// load normal page with all jobs of this saleman and all status.
+			// no search button pressed
+			if($urole == KINHDOANHROLE){
+				$conditions = array(
+										'Job.status <'=>DAKETTHUC, // all job but not DAKETTHUC
+									);
+			} elseif($urole == KETOANROLE) {
+				$conditions = array(
+										'Job.status'=>$ustatus,
+									);
+			} elseif($urole == KHAITHACROLE) {
+				$conditions = array(
+										'Job.status <='=>KHT_GUIBANCUNG, //from 0-4
+									);
 			}
 
 			// paginate the data
@@ -69,7 +113,7 @@ class JobsController extends AppController{
 				'conditions'	=> $conditions,
 				'joins'			=> array(), // no need to join because we have the belongsto relationship
 	            'limit' 		=> 20,
-	            'order' 		=> array('Job.partner_code' => 'asc' ),
+	            'order' 		=> array('Job.modified' => 'asc' ),
 	        );
 
 		} //end check get method
@@ -82,6 +126,7 @@ class JobsController extends AppController{
 
 	public function edit($id=null){
 		// var_dump($this->request->data);
+		$this->loadModel('Alert');
 
 		/*This action first ensures that the user has tried to access an existing record. 
 		If they haven’t passed in an $id parameter, or the post does not exist, 
@@ -96,15 +141,64 @@ class JobsController extends AppController{
 	        throw new NotFoundException(__('Invalid job'));
 	    }
 
+	    //echo $job['Partner']['emailKD'];
+
+	    /* whatever it is, create an alert record and fill the ID into the alert_id */
+	    if(!isset($job['Job']['alert_id']) || $job['Job']['alert_id'] == 0 ){
+	    	$newalert['Alert']['status'] = 99;
+	    	$newalert['Alert']['email_to'] 	= $job['Partner']['emailKD'];
+	    	$newalert['Alert']['email_cc']	= EMAILCC;
+	    	$newalert['Alert']['email_bcc'] = EMAILBCC;
+
+	    	$this->Alert->create();
+	    	$this->Alert->save($newalert);
+	    	$alert_id = $this->Alert->id;
+	    	//echo "NEW ALERT RECORD IS CREATED WITH ID: " . $alert_id;
+	    	
+	    	/* now insert it into job record */
+	    	$this->Job->read(null,1);
+	    	$this->Job->set('alert_id', $alert_id);
+	    	$this->Job->save();
+
+	    	//redirect to refresh
+	    	$this->redirect(array('action' => 'edit', $id));
+
+	    }
+	    
+
 	    $jobstt = $job['Job']['status'];
 	    $this->set(compact('jobstt'));
 
 	    /* Next the action checks whether the request is either a POST or a PUT request. 
 		If it is, then we use the POST data to update our Post record, or kick back and show the user validation errors. */
 
-	    if ($this->request->is(array('post', 'put'))) {
-	        $this->Job->id = $id;
-	        if ($this->Job->save($this->request->data)) {
+	    if ( $this->request->is(array('post', 'put')) && isset($_POST['savebtn']) ) { //for savebtn only
+
+	    	$email_attach = $this->request->data['Job']['email_attach'];
+	    	
+	        // set update criterias
+	        $this->Job->id = $id; // set job where id = $id
+	        $this->Alert->id = $job['Job']['alert_id']; // set job where id = $id
+
+	        // check if users update the attached files. This procedure will exe only when user update this field.
+	    	if(isset($email_attach['name']) && $email_attach['name'] != '' ){
+	    		//this happens when users update attached files
+	    		$filename = "C:/wamp/www/vnptepaycrm-cakephp/app/webroot/files/" . $email_attach['name'];
+		    	//var_dump($filename);
+		    	
+		    	/*copy upload file*/
+		    	if( move_uploaded_file($email_attach['tmp_name'], $filename) ){
+		    		//upload ok then manually update alert table
+		    		$this->Alert->saveField('email_attach', $filename);
+		    		//die('we can do');	
+		    	} else {
+		    		die('Unable to upload attach file');
+		    	}
+		    	//die();	
+	    	}
+
+	        // now do update both tables
+	        if ($this->Job->save($this->request->data) && $this->Alert->save($this->request->data)) {
 
 	        	// update tinhcuoc & ketoan users
 	        	$urole = $this->Session->read('Auth.User.role');
@@ -113,11 +207,12 @@ class JobsController extends AppController{
 	        	
 	        	if($urole == 'khaithac' && $cstatus ==0)
 				{
-					if($this->Job->saveField('tinhcuoc_id', $newstatus)){
+					if($this->Job->saveField('tinhcuoc_id', $newstatus) ){
 
 					} else {
 						$this->Session->setFlash(__('Unable to update khaithac user.'));
 					}
+				
 				} elseif ($urole == 'ketoan' && $cstatus ==2) {
 					if($this->Job->saveField('ketoan_id', $newstatus)){
 
@@ -125,6 +220,67 @@ class JobsController extends AppController{
 						$this->Session->setFlash(__('Unable to update ketoan user.'));
 					}
 				}
+
+
+	            $this->Session->setFlash(__('Your job has been updated.'));
+	            return $this->redirect(array('action' => 'edit', $id));
+	        } else {
+	        	$this->Session->setFlash(__('Unable to update this job.'));
+	        }
+	    }
+
+	    /* Only apply to user when they press Send mail button.
+	    Save creds and send emails*/
+	    if( $this->request->is(array('post', 'put')) && isset($_POST['sendbtn']) ){
+	    	$email_attach = $this->request->data['Job']['email_attach'];
+	    	
+	        // set update criterias
+	        $this->Job->id = $id; // set job where id = $id
+	        $this->Alert->id = $job['Job']['alert_id']; // set job where id = $id
+
+	        // check if users update the attached files. This procedure will exe only when user update this field.
+	    	if(isset($email_attach['name']) && $email_attach['name'] != '' ){
+	    		//this happens when users update attached files
+	    		$filename = "C:/wamp/www/vnptepaycrm-cakephp/app/webroot/files/" . $email_attach['name'];
+		    	//var_dump($filename);
+		    	
+		    	/*copy upload file*/
+		    	if( move_uploaded_file($email_attach['tmp_name'], $filename) ){
+		    		//upload ok then manually update alert table
+		    		$this->Alert->saveField('email_attach', $filename);
+		    		//die('we can do');	
+		    	} else {
+		    		die('Unable to upload attach file');
+		    	}
+		    	//die();	
+	    	}
+
+	        // now do update both tables
+	        if ($this->Job->save($this->request->data) && $this->Alert->save($this->request->data)) {
+
+	        	// update tinhcuoc & ketoan users
+	        	$urole = $this->Session->read('Auth.User.role');
+	        	$cstatus = (int) $this->Job->field('status', array('id'=>$id));
+	        	$newstatus = $this->Session->read('Auth.User.id');
+	        	
+	        	if($urole == 'khaithac' && $cstatus ==0)
+				{
+					if($this->Job->saveField('tinhcuoc_id', $newstatus) ){
+
+					} else {
+						$this->Session->setFlash(__('Unable to update khaithac user.'));
+					}
+				
+				} elseif ($urole == 'ketoan' && $cstatus ==2) {
+					if($this->Job->saveField('ketoan_id', $newstatus)){
+
+					} else {
+						$this->Session->setFlash(__('Unable to update ketoan user.'));
+					}
+				}
+
+				//manually update status of alert records
+				$this->Alert->saveField('status', 0);
 
 
 	            $this->Session->setFlash(__('Your job has been updated.'));
@@ -147,7 +303,7 @@ class JobsController extends AppController{
 	{
 		//get current status
 		$cstatus = (int) $this->Job->field('status', array('id'=>$id));
-		$newstatus = $cstatus + 1; 
+		$newstatus = $cstatus + 1; //forward job to another dept
 		$urole = $this->Session->read('Auth.User.role');
 
 		$this->Job->id = $id;
@@ -162,6 +318,10 @@ class JobsController extends AppController{
 			// save all the fields
 			// do enable
 			if($this->Job->saveField('status', $newstatus)){
+
+				//
+
+				
 				$this->Session->setFlash(__('Job has been forwarded.'));
 				return $this->redirect(array('action'=>'edit', $id));
 			} else {

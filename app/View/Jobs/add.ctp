@@ -1,3 +1,13 @@
+<?php 
+	function generateRandomString($length = 6) {
+	    $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+	    $randomString = '';
+	    for ($i = 0; $i < $length; $i++) {
+	        $randomString .= $characters[rand(0, strlen($characters) - 1)];
+	    }
+	    return $randomString;
+	}
+?>
 <div class="jobs form">
 	<?php echo $this->Form->create('Job');?>
 		<fieldset>
@@ -7,6 +17,7 @@
 			<?php echo $this->Form->input('notes1') ;?>
 			<?php echo $this->Form->hidden('status', array('value'=>'0')) ;?>
 			<?php echo $this->Form->hidden('type', array('value'=>'1')) ;?>
+			<?php echo $this->Form->hidden('otp', array('value'=>generateRandomString())) ;?>
 			
 			<?php echo $this->Form->submit('Add job', array('class'=>'form-submit')) ;?>
 		</fieldset>

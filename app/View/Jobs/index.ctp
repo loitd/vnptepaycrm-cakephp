@@ -7,6 +7,10 @@
 <?php echo $this->Form->create(array('type'=>'get'));?>
     <?php echo $this->Form->input('from_date', array('type'=>'date'));?>
     <?php echo $this->Form->input('to_date', array('type'=>'date'));?>
+
+    <?php echo $this->Form->input('priority', array('label'=>'Mức ưu tiên tìm kiếm', 
+    'options'=>array('0'=>'Tất cả', '1'=>'Đột xuất', '2'=>'Định kỳ', '3'=>'Tháng 2 lần'), ));?>
+
     <?php echo $this->Form->input('partner_code', array('type'=>'text'));?>
     <?php echo $this->Form->submit('Search');?>
 
@@ -18,11 +22,13 @@
             <!-- th><?php // echo $this->Form->checkbox('all', array('name' => 'CheckAll',  'id' => 'CheckAll')); ?></th -->
             <th><?php echo $this->Paginator->sort('Partner.partner_code', 'Partner code');?>  </th>
             <th><?php echo $this->Paginator->sort('saleman_id', 'Saleman');?></th>
-            <th><?php echo $this->Paginator->sort('tinhcuoc_id', 'Tính cước');?></th>
+            <th><?php echo $this->Paginator->sort('tinhcuoc_id', 'Khai thác');?></th>
             <th><?php echo $this->Paginator->sort('ketoan_id','Kế toán');?></th>
             <th><?php echo $this->Paginator->sort('status','Status');?></th>
             <th><?php echo $this->Paginator->sort('created','TG Tạo');?></th>
-            <th><?php echo $this->Paginator->sort('modified','TG Chỉnh sửa');?></th>
+            <th><?php echo $this->Paginator->sort('otp','OTP');?></th>
+            <th><?php echo $this->Paginator->sort('Partner.dieukientt','ĐKTT');?></th>
+            <th><?php echo $this->Paginator->sort('type','Loại TT');?></th>
             <th>Actions</th>
         </tr>
     </thead>
@@ -46,16 +52,22 @@
                 <td style="text-align: center;"><?php echo $job['Ketoan']['username']; ?></td>
                 <td style="text-align: center;">
                     <?php 
-                        $x = $job['Job']['status']; 
-                        if($x=='0'){echo "Khai thác Process";} 
-                        elseif ($x=='1') { echo "Kinh doanh Process"; }
-                        elseif ($x=='2') { echo "Kế toán Process"; }
-                        elseif ($x=='3') { echo "Đã kết thúc"; }
+                        $x = (int)$job['Job']['status']; 
+                        if($x==KHT_YEUCAUDOISOAT){echo "KHT Yêu cầu đối soát";} 
+                        elseif ($x==KHT_GUIDOISOAT) { echo "KHT Gửi đối soát"; }
+                        elseif ($x==KHT_XULYSAILECH) { echo "KHT Xử lý sai lệch"; }
+                        elseif ($x==KHT_CHOTSOLIEU) { echo "KHT Chốt số liệu"; }
+                        elseif ($x==KHT_GUIBANCUNG) { echo "KHT Gửi bản cứng"; }
+                        elseif ($x==KINHDOANH_PROCESS) { echo "Kinh doanh Process"; }
+                        elseif ($x==KETOAN_PROCESS) { echo "Kế toán Process"; }
+                        elseif ($x==DAKETTHUC) { echo "Đã kết thúc"; }
                         else { echo "Không xác định"; }
                     ?>
                 </td>
                 <td style="text-align: center;"><?php echo $job['Job']['created']; ?></td>
-                <td style="text-align: center;"><?php echo $job['Job']['modified']; ?></td>
+                <td style="text-align: center;"><?php echo $job['Job']['otp']; ?></td>
+                <td style="text-align: center;"><?php echo $job['Partner']['dieukientt']; ?></td>
+                <td style="text-align: center;"><?php echo ($job['Job']['type'] == '0') ? 'Định kỳ' : 'Đột xuất'; ?></td>
                 <td >
                 <?php echo $this->Html->link(    "Edit",   array('action'=>'edit', $job['Job']['id']) ); ?> | 
                 <?php //echo $this->Html->link(    "Make Payment",   array('action'=>'payment', $job['Job']['id']) ); ?>
